@@ -26,7 +26,6 @@ jobs:
         
       - name: Copy customized files
         run: |
-          mv themes/ryan.png themes/oranges/source/images
           cp themes/header.ejs themes/oranges/layout/_partial/header.ejs
           cp themes/gitalk.css themes/oranges/source/plugins/gitalk.css
           cp themes/comments.ejs themes/oranges/layout/_partial/comments.ejs
