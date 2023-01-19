@@ -11,11 +11,6 @@
   
   <title>
     
-      Canal 
-      
-      
-      |
-    
      Ryan
   </title>
 
@@ -146,27 +141,113 @@
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">
     <div class="post-content">
-      <div class="post-title">Canal</div>
+      <div class="post-title"></div>
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-          2023-01-19 19:41:24
+          2023-01-19 11:54:55
         </span>
         
-              <span class="post-tags">
-                <i class="iconfont icon-tags mr-10" title="标签"></i>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/Bigdata/" title="Bigdata">
-                    #Bigdata
-                  </a>
-                </span>
-                
-              </span>
-          
       </div>
       <div class="markdown-body">
-        
+        <h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>​      阿里巴巴 B2B 公司，因为业务的特性，卖家主要集中在国内，买家主要集中在国外，所 以衍生出了&#x3D;&#x3D;同步杭州和美国异地机房的需求，&#x3D;&#x3D;从 2010 年开始，阿里系公司开始逐步的尝试 基于数据库的日志解析，获取增量变更进行同步，由此衍生出了增量订阅&amp;消费的业务。 Canal 是用 Java 开发的基于数据库增量日志解析，提供增量数据订阅&amp;消费的中间件。 目前。&#x3D;&#x3D;Canal 主要支持了 MySQL 的 Binlog 解析，解析完成后才利用 Canal Client 来处理获得 的相关数据。&#x3D;&#x3D;（数据库同步需要阿里的 Otter 中间件，基于 Canal）。</p>
+<h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><ul>
+<li><strong>利用Mysql主从复制 [^见Maxwell]</strong></li>
+</ul>
+<p>把自己伪装成 Slave，假装从 Master 复制数据。</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><blockquote>
+<p>阿里 Otter 中间件的一部分</p>
+</blockquote>
+<p><img src="/../image/image-20220419175308400.png" alt="image-20220419175308400"></p>
+<ul>
+<li><p>场景1 ：更新缓存</p>
+<p><img src="/../image/image-20220419175420214.png" alt="image-20220419175420214"></p>
+</li>
+<li><p>场景2   </p>
+<p>抓取业务表的新增变化数据，用于制作实时统计（我们就是这种场景）</p>
+</li>
+</ul>
+<h1 id="二、安装部署"><a href="#二、安装部署" class="headerlink" title="二、安装部署"></a>二、安装部署</h1><h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#创建数据库gamll-2021</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#创建数据表</span></span><br><span class="line">CREATE TABLE user_info(</span><br><span class="line">`<span class="built_in">id</span>` VARCHAR(255),</span><br><span class="line">`name` VARCHAR(255),</span><br><span class="line">`sex` VARCHAR(255)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>🚩Mysql的Binlog配置与测试 见Maxwell</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#赋权</span><br><span class="line">mysql<span class="operator">&gt;</span><span class="keyword">GRANT</span> <span class="keyword">SELECT</span>, REPLICATION SLAVE, REPLICATION CLIENT <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;canal&#x27;</span>@<span class="string">&#x27;%&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;canal&#x27;</span> ;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p><a target="_blank" rel="noopener" href="https://github.com/alibaba/canal/releases">下载链接</a>        &#x3D;&#x3D;canal.deployer-1.1.2.tar.gz&#x3D;&#x3D;</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#下载后上传到/opt/sortware  解压到 /opt/module/canal</span></span><br><span class="line">🚩提前创建/opt/module/canal</span><br><span class="line">$ tar -zxvf canal.deployer-1.1.2.tar.gz -C /opt/module/canal</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h2><ul>
+<li><p><strong>canal.properties</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#在/opt/module/canal/conf</span></span><br><span class="line"></span><br><span class="line">👇修改如下内容</span><br><span class="line"><span class="comment">#################################################</span></span><br><span class="line"><span class="comment">######### common argument ############# </span></span><br><span class="line"><span class="comment">#################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># tcp, kafka, RocketMQ</span></span><br><span class="line">canal.serverMode = tcp</span><br><span class="line"></span><br><span class="line"><span class="comment">#################################################</span></span><br><span class="line"><span class="comment">######### destinations ############# </span></span><br><span class="line"><span class="comment">#################################################</span></span><br><span class="line">canal.destinations = example</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><code>canal.destinations = example</code></p>
+<p>&#x3D;&#x3D;一个 canal 服务 中可以有多个 instance，conf&#x2F;下的每一个 example文件 即是一个实例默认一个&#x3D;&#x3D;</p>
+<!--如果需要多个实例处理不同的 MySQL 数据的话，直 接拷贝出多个 example，并对其重新命名，命名和配置文件中指定的名称一致，然后修改 canal.properties 中的 canal.destinations=实例 1，实例 2，实例 3。-->
+
+
+
+
+
+<ul>
+<li><p><strong>instance.properties</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#地址/opt/module/canal/conf/example</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#配置Mysql服务器地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#################################################</span></span><br><span class="line"><span class="comment">## mysql serverId , v1.0.26+ will autoGen </span></span><br><span class="line">canal.instance.mysql.slaveId=20</span><br><span class="line"></span><br><span class="line">canal.instance.master.address=hadoop102:3306</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#配置连接 MySQL 的用户名和密码，默认就是我们前面授权的 canal</span></span><br><span class="line"><span class="comment"># username/password</span></span><br><span class="line">canal.instance.dbUsername=canal</span><br><span class="line">canal.instance.dbPassword=canal</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="三、案例实操"><a href="#三、案例实操" class="headerlink" title="三、案例实操"></a>三、案例实操</h1><p><code>实时监控</code></p>
+<h2 id="TCP-模式测试"><a href="#TCP-模式测试" class="headerlink" title="TCP 模式测试"></a>TCP 模式测试</h2><ul>
+<li><p><strong>在idea创建 gmall-canal 项目</strong></p>
+</li>
+<li><p><strong>配置pom</strong></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&lt;dependencies&gt;</span></span><br><span class="line">    <span class="attr">&lt;dependency&gt;</span></span><br><span class="line">        <span class="attr">&lt;groupId&gt;com.alibaba.otter&lt;/groupId&gt;</span></span><br><span class="line">        <span class="attr">&lt;artifactId&gt;canal.client&lt;/artifactId&gt;</span></span><br><span class="line">        <span class="attr">&lt;version&gt;1.1.2&lt;/version&gt;</span></span><br><span class="line">    <span class="attr">&lt;/dependency&gt;</span></span><br><span class="line">    <span class="attr">&lt;dependency&gt;</span></span><br><span class="line">        <span class="attr">&lt;groupId&gt;org.apache.kafka&lt;/groupId&gt;</span></span><br><span class="line">        <span class="attr">&lt;artifactId&gt;kafka-clients&lt;/artifactId&gt;</span></span><br><span class="line">        <span class="attr">&lt;version&gt;2.4.1&lt;/version&gt;</span></span><br><span class="line">    <span class="attr">&lt;/dependency&gt;</span></span><br><span class="line"><span class="attr">&lt;/dependencies&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 com.atguigu.app 包创建 CanalClient</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CanalClient</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException, InvalidProtocolBufferException &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//1 获取canal连接对象</span></span><br><span class="line">        <span class="type">CanalConnector</span> <span class="variable">connector</span> <span class="operator">=</span> CanalConnectors.newSingleConnector(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(<span class="string">&quot;hadoop102&quot;</span>, <span class="number">11111</span>), <span class="string">&quot;example&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="comment">//2 获取连接</span></span><br><span class="line">            connector.connect();</span><br><span class="line"></span><br><span class="line">            <span class="comment">//3 订阅数据库</span></span><br><span class="line">            connector.subscribe(<span class="string">&quot;gmall-2021.*&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//4 获取数据</span></span><br><span class="line">            <span class="type">Message</span> <span class="variable">message</span> <span class="operator">=</span> connector.get(<span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//5 获取Entry集合</span></span><br><span class="line">            List&lt;CanalEntry.Entry&gt; entries = message.getEntries();</span><br><span class="line"></span><br><span class="line">            <span class="comment">//6 判断是否有数据</span></span><br><span class="line">            <span class="keyword">if</span> (entries.size() &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;没有数据&quot;</span>);</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//7 解析Entry</span></span><br><span class="line">                <span class="keyword">for</span> (CanalEntry.Entry entry : entries) &#123;</span><br><span class="line">                    <span class="comment">//7.1 获取表名</span></span><br><span class="line">                    <span class="type">String</span> <span class="variable">tableName</span> <span class="operator">=</span> entry.getHeader().getTableName();</span><br><span class="line"></span><br><span class="line">                    <span class="comment">//7.2 获取entry类型</span></span><br><span class="line"></span><br><span class="line">                    CanalEntry.<span class="type">EntryType</span> <span class="variable">entryType</span> <span class="operator">=</span> entry.getEntryType();</span><br><span class="line"></span><br><span class="line">                    <span class="comment">//7.3 获取序列化后数据</span></span><br><span class="line">                    <span class="type">ByteString</span> <span class="variable">storeValue</span> <span class="operator">=</span> entry.getStoreValue();</span><br><span class="line"></span><br><span class="line">                    <span class="comment">//7.4 判断当前entryType是否是ROWDATA</span></span><br><span class="line">                    <span class="keyword">if</span> (CanalEntry.EntryType.ROWDATA.equals(entryType)) &#123;</span><br><span class="line"></span><br><span class="line">                        <span class="comment">//7.4.1 反序列化获取rowData</span></span><br><span class="line">                        CanalEntry.<span class="type">RowChange</span> <span class="variable">rowChange</span> <span class="operator">=</span> CanalEntry.RowChange.parseFrom(storeValue);</span><br><span class="line"></span><br><span class="line">                        <span class="comment">//7.4.2 获取事件的操作类型</span></span><br><span class="line">                        CanalEntry.<span class="type">EventType</span> <span class="variable">eventType</span> <span class="operator">=</span> rowChange.getEventType();</span><br><span class="line"></span><br><span class="line">                        <span class="comment">//7.4.3 获取数据集</span></span><br><span class="line">                        List&lt;CanalEntry.RowData&gt; rowDatas = rowChange.getRowDatasList();</span><br><span class="line"></span><br><span class="line">                        <span class="comment">//7.4.4 遍历数据集，打印数据</span></span><br><span class="line">                        <span class="keyword">for</span> (CanalEntry.RowData rowData : rowDatas) &#123;</span><br><span class="line"></span><br><span class="line">                            <span class="comment">// 更新前的数据</span></span><br><span class="line">                            <span class="type">JSONObject</span> <span class="variable">beforeData</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">                            <span class="comment">//遍历更新前的数据</span></span><br><span class="line">                            rowData.getBeforeColumnsList().forEach(beforeColumn -&gt; &#123;</span><br><span class="line">                                beforeData.put(beforeColumn.getName(), beforeColumn.getValue());</span><br><span class="line">                            &#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                            <span class="comment">// 更新后的数据</span></span><br><span class="line">                            <span class="type">JSONObject</span> <span class="variable">afterData</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">                            <span class="comment">//遍历更新后的数据</span></span><br><span class="line">                            rowData.getAfterColumnsList().forEach(afterColumn -&gt; &#123;</span><br><span class="line">                                afterData.put(afterColumn.getName(), afterColumn.getValue());</span><br><span class="line">                            &#125;);</span><br><span class="line"></span><br><span class="line">                            <span class="comment">//打印数据</span></span><br><span class="line">                            System.out.println(<span class="string">&quot;tableName:&quot;</span> + tableName + <span class="string">&quot; eventType:&quot;</span> + eventType + <span class="string">&quot; beforeData:&quot;</span> + beforeData + <span class="string">&quot; afterData:&quot;</span> + afterData);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        System.out.println(<span class="string">&quot;当前entryType是&quot;</span> + entryType);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="Canal数据结构"><a href="#Canal数据结构" class="headerlink" title="Canal数据结构"></a>Canal数据结构</h4><p><img src="/../image/image-20220419182943835.png" alt="image-20220419182943835"></p>
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4><ul>
+<li><p>启动canal</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">canal]$ bin/startup.sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>运行代码</p>
+</li>
+<li><p>向数据库gmall-2021&#x2F;user_info做增删改操作</p>
+</li>
+<li><p>查看idea的控制台</p>
+</li>
+</ul>
+<h2 id="Kafka-模式"><a href="#Kafka-模式" class="headerlink" title="Kafka 模式"></a>Kafka 模式</h2><ul>
+<li><p>修改canal.properties        tcp，改为输出到 kafka</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#################################################</span></span><br><span class="line"><span class="comment">######### common argument ############# </span></span><br><span class="line"><span class="comment">#################################################</span></span><br><span class="line"><span class="attr">canal.id</span> = <span class="string">1</span></span><br><span class="line"><span class="attr">canal.ip</span> =<span class="string"></span></span><br><span class="line"><span class="attr">canal.port</span> = <span class="string">11111</span></span><br><span class="line"><span class="attr">canal.metrics.pull.port</span> = <span class="string">11112</span></span><br><span class="line"><span class="attr">canal.zkServers</span> =<span class="string"></span></span><br><span class="line"><span class="comment"># flush data to zk</span></span><br><span class="line"><span class="attr">canal.zookeeper.flush.period</span> = <span class="string">1000</span></span><br><span class="line"><span class="attr">canal.withoutNetty</span> = <span class="string">false</span></span><br><span class="line"><span class="comment"># tcp, kafka, RocketMQ</span></span><br><span class="line"><span class="attr">canal.serverMode</span> = <span class="string">kafka</span></span><br><span class="line">					<span class="attr">👆</span></span><br><span class="line"><span class="comment"># flush meta cursor/parse position to file</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改 Kafka 集群的地址</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">##################################################</span></span><br><span class="line"><span class="comment">######### MQ #############</span></span><br><span class="line"><span class="comment">##################################################</span></span><br><span class="line"><span class="attr">canal.mq.servers</span> = <span class="string">hadoop102:9092,hadoop103:9092,hadoop104:9092</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改 instance.properties 输出到 Kafka 的主题以及分区数</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mq config</span></span><br><span class="line"><span class="attr">canal.mq.topic</span>=<span class="string">canal_test</span></span><br><span class="line"><span class="attr">canal.mq.partitionsNum</span>=<span class="string">1</span></span><br><span class="line"><span class="comment"># hash partition config</span></span><br><span class="line"><span class="comment">#canal.mq.partition=0</span></span><br><span class="line"><span class="comment">#canal.mq.partitionHash=mytest.person:id,mytest.role:id</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<!--注意：默认还是输出到指定 Kafka 主题的一个 kafka 分区，因为多个分区并行可能会打 乱 binlog 的顺序 ， 如 果 要 提 高 并 行 度 ， 首 先 设 置 kafka 的 分 区 数 >1, 然 后 设 置 canal.mq.partitionHash 属性-->
+
+
+
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><ul>
+<li><p>启动canal</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">canal]$ bin/startup.sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动 Kafka 消费客户端</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-consumer.sh --bootstrap-server hadoop102:9092 --topic canal_test</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>向数据库gmall-2021&#x2F;user_info做增删改操作</p>
+</li>
+<li><p>查看kafka消费者的控制台</p>
+</li>
+</ul>
+
       </div>
       
         <div class="prev-or-next">
@@ -181,20 +262,9 @@
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-              2023-01-19 19:41:24
+              2023-01-19 11:54:55
             </span>
             
-                  <span class="post-tags">
-                    <i class="iconfont icon-tags mr-10" title="标签"></i>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/Bigdata/" title="Bigdata">
-                        #Bigdata
-                      </a>
-                    </span>
-                    
-                  </span>
-              
           </div>
           <div class="post-foot-prev">
             
@@ -203,6 +273,23 @@
       
     </div>
     
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-text">一、概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">使用场景</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2"><span class="toc-text">二、安装部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85"><span class="toc-text">下载安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE"><span class="toc-text">修改配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%A1%88%E4%BE%8B%E5%AE%9E%E6%93%8D"><span class="toc-text">三、案例实操</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP-%E6%A8%A1%E5%BC%8F%E6%B5%8B%E8%AF%95"><span class="toc-text">TCP 模式测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Canal%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-text">Canal数据结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-text"></span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kafka-%E6%A8%A1%E5%BC%8F"><span class="toc-text">Kafka 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-text">测试</span></a></li></ol></li></ol></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
 
     
       <div class="comments-container">
@@ -492,7 +579,7 @@
       </a>
       <div class="share-content hidden">
         
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Canal + '&url=' + https%3A%2F%2Fjiachuanh.github.io%2F2023%2F01%2F19%2FCanal%2F + '" target="_blank" title="Twitter">
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' +  + '&url=' + https%3A%2F%2Fjiachuanh.github.io%2F2023%2F01%2F19%2FCanal%2F + '" target="_blank" title="Twitter">
             <i class="iconfont icon-twitter"></i>
           </a>
         
