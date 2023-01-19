@@ -12,7 +12,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
       with:
-        submodules: oranges
+        submodules: true
     - name: Build and Deploy
       uses: renzhaosy/hexo-deploy-action@master
       env:
