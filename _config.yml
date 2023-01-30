@@ -106,3 +106,8 @@ deploy:
   repo: git@github.com:jiachuanH/ryanblog.git
   branch: gh-pages
   message: ${{ github.event.head_commit.message }}
+
+search:
+  path: search.xml
+  field: post
+  content: true
